@@ -27,10 +27,10 @@ function App(){
   try{const r=await fetch(API+'/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(login)}),j=await r.json();if(!r.ok)throw Error(j.message||'Login failed');setSession(j);sessionStorage.setItem('ml_session',JSON.stringify(j));setPage('dashboard')}
   catch(e){setError(e.message)}finally{setBusy(false)}
  }
- useEffect(()=>{if(!session)return;const paths={dashboard:['/books?size=50','/members?size=50','/loans?size=50'],books:['/books?size=50&q='+encodeURIComponent(search)+(filter?'&category_id='+filter:'')],members:['/members?size=50&q='+encodeURIComponent(search)],loans:['/loans?size=50'],overdue:['/loans/overdue?size=50'],reports:['/reports/most-borrowed?from='+range.from+'&to='+range.to],librarians:[]};
+ useEffect(()=>{if(!session)return;const paths={dashboard:['/books?size=50','/members?size=50','/loans?size=50'],books:['/books?size=50&q='+encodeURIComponent(search)+(filter?'&category_id='+filter:'')],members:['/members?size=50&q='+encodeURIComponent(search)],loans:['/loans?size=50','/books?size=50','/members?size=50'],overdue:['/loans/overdue?size=50'],reports:['/reports/most-borrowed?from='+range.from+'&to='+range.to],librarians:[]};
   if(page==='reports'&&!isAdmin)return;
   Promise.all([request('/categories'),...(paths[page]||[]).map(p=>request(p))]).then(([categories,...items])=>{
-    setData({categories,books:page==='books'?items[0]:page==='dashboard'?items[0]:null,members:page==='members'?items[0]:page==='dashboard'?items[1]:null,loans:page==='loans'?items[0]:page==='dashboard'?items[2]:null,overdue:page==='overdue'?items[0]:null,report:page==='reports'?items[0]:null});
+    setData({categories,books:page==='books'?items[0]:page==='dashboard'?items[0]:page==='loans'?items[1]:null,members:page==='members'?items[0]:page==='dashboard'?items[1]:page==='loans'?items[2]:null,loans:page==='loans'?items[0]:page==='dashboard'?items[2]:null,overdue:page==='overdue'?items[0]:null,report:page==='reports'?items[0]:null});
   }).catch(e=>setError(e.message));
  },[session,page,reload,search,filter,range.from,range.to]);
  function navigate(to){setPage(to);setSearch('');setFilter('');setForm({});setError('');setMessage('')}
